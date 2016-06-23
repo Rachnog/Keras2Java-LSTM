@@ -16,7 +16,7 @@ public class Main {
 
         DoubleMatrix X = new DoubleMatrix(x);
 
-        SimpleLSTMPropagator propagator = new SimpleLSTMPropagator(".\\weights\\", 2);
+        SimpleLSTMPropagator propagator = new SimpleLSTMPropagator("C:\\Users\\Alex\\IdeaProjects\\LSTM\\src\\situation0\\", 2);
         DoubleMatrix prediction = propagator.forward_propagate_full(X);
         System.out.println(prediction);
 

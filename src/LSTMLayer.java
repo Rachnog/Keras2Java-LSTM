@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 /**
  * Created by Alex on 23.06.2016.
+ * Basic LSTM layer with forward propagation routine
  */
 public class LSTMLayer implements AbstractLayer {
 
@@ -30,6 +31,7 @@ public class LSTMLayer implements AbstractLayer {
         this.layerNum = layerNum;
         this.returnSequence = returnSequence;
 
+        // Just loading initial weights trained by Keras
         this.W_i = Utils.loadMatrixFromFile(path + this.layerNum + "_param_0.txt");
         this.U_i = Utils.loadMatrixFromFile(path + this.layerNum + "_param_1.txt");
         this.b_i = Utils.loadMatrixFromFile(path + this.layerNum + "_param_2.txt");
@@ -50,16 +52,22 @@ public class LSTMLayer implements AbstractLayer {
 
     public DoubleMatrix forwardStep(DoubleMatrix X) {
 
+        // If our input is shorter then defined by architecture (15),
+        // let's add some zero vectors to it to allow adequate matrix multiplication
         if (this.layerNum == 0) {
             X = inputFix(X);
         }
 
         ArrayList<DoubleMatrix> outputs = new ArrayList();
+
+        // Let's define previous cell output and hidden state
         DoubleMatrix h_t_1 = DoubleMatrix.zeros(this.W_i.columns, 1);
         DoubleMatrix C_t_1 = DoubleMatrix.zeros(this.W_i.columns, 1);
 
         for (int i = 0; i < X.columns; i++) {
 
+            // Weights update for every cell step-by-step.
+            // For more details check out: http://deeplearning.net/tutorial/lstm.html
             DoubleMatrix x_t = X.getColumn(i);
             DoubleMatrix W_i_mul_x = this.W_i.transpose().mmul(x_t);
             DoubleMatrix U_i_mul_h_1 = this.U_i.transpose().mmul(h_t_1);
@@ -88,6 +96,10 @@ public class LSTMLayer implements AbstractLayer {
         }
 
         if (this.returnSequence) {
+
+            // We return out sequence corresponding to our input,
+            // which has length of this.realSize.
+            // We will restore it in next layer again using fixInput()
             int rows = outputs.get(0).rows;
             DoubleMatrix result = DoubleMatrix.zeros(rows, this.realSize);
             for (int i = 0; i < outputs.size(); i++) {
@@ -98,6 +110,8 @@ public class LSTMLayer implements AbstractLayer {
             return result;
 
         } else {
+            // If we don't want to return sequence of outputs from every cell,
+            // but only for the last one (for the last LSTM layer), use this.
             return outputs.get(outputs.size() - 1);
         }
 

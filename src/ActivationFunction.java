@@ -1,5 +1,6 @@
 /**
  * Created by Alex on 09.06.2016.
+ * Class for activation functions used for forward propagation
  */
 
 import org.jblas.DoubleMatrix;
